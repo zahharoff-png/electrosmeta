@@ -1,0 +1,22 @@
+
+{
+  "id": "./",
+  "name": "ЭлектроСмета 2026 — Нижний Тагил",
+  "short_name": "ЭлектроСмета",
+  "description": "Калькулятор электромонтажных работ",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef2f5",
+  "theme_color": "#172b3c",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23172b3c'/%3E%3Cpath d='M280 65L120 290H245L215 447L400 215H270Z' fill='%23facc15'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
