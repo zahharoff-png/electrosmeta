@@ -1,0 +1,1021 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#172b3c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ЭлектроСмета">
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+<title>ЭлектроСмета 2026</title>
+<style>
+:root{
+  color-scheme:light;
+  --primary:#14745e;
+  --font-size:16px;
+  --border-radius:12px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#eef2f5;
+  color:#172b3c;
+  font:16px system-ui,-apple-system,sans-serif;
+}
+main.container{
+  max-width:750px;
+  margin:auto;
+  padding:14px 14px 125px;
+}
+nav.container-fluid{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#172b3c;
+  color:white;
+  border-radius:16px;
+  padding:16px;
+}
+nav ul{
+  display:flex;
+  gap:12px;
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+nav li{padding:0}
+nav strong,nav a{color:white}
+nav a[role=button]{
+  background:#14745e;
+  padding:8px;
+  border:0;
+  border-radius:8px;
+}
+h1{
+  font-size:25px;
+  margin:20px 0 5px;
+  color:#172b3c;
+}
+h2{
+  font-size:19px;
+  margin:0 0 14px;
+  color:#172b3c;
+}
+p{margin:0 0 10px}
+small,.muted{
+  color:#596b7b;
+  font-size:13px;
+}
+.panel{
+  background:white;
+  border:1px solid #dce3e8;
+  border-radius:16px;
+  padding:15px;
+  margin:12px 0;
+}
+label{
+  display:block;
+  color:#526475;
+  font-size:13px;
+  font-weight:600;
+}
+input,select,button,textarea{
+  width:100%;
+  min-height:46px;
+  font:16px system-ui!important;
+  border-radius:10px;
+  padding:10px!important;
+  margin:5px 0 9px!important;
+}
+input,select,textarea{
+  background:white!important;
+  color:#172b3c!important;
+  border:1px solid #cbd5df!important;
+}
+button{
+  border:0;
+  background:#14745e;
+  color:white;
+  font-weight:650!important;
+  cursor:pointer;
+}
+button.secondary{
+  background:#e7edf1;
+  color:#172b3c;
+}
+button:disabled{opacity:.45}
+.tabs{
+  display:flex;
+  gap:7px;
+  margin:12px 0;
+}
+.tabs button{
+  flex:1;
+  font-size:14px!important;
+}
+.fields{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:10px;
+}
+.line{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  margin:10px 0;
+}
+.item{
+  border-top:1px solid #dce3e8;
+  padding:12px 0;
+}
+.money{
+  font-weight:750;
+  color:#14745e;
+  white-space:nowrap;
+}
+.big{font-size:26px}
+.notice{
+  background:#e5f4ed;
+  border-radius:12px;
+  padding:12px;
+  font-size:13px;
+  margin:10px 0;
+}
+.warn{
+  color:#995d13;
+  font-size:13px;
+}
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#172b3c;
+  color:white;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+}
+.bottominner{
+  max-width:720px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.bottom strong{font-size:25px}
+.bottom small{color:#c5d0d8}
+.bottom button{
+  width:auto;
+  background:#d9f7e9;
+  color:#173d33;
+}
+footer{
+  font-size:13px;
+  padding:12px;
+  color:#596b7b;
+}
+[hidden]{display:none!important}
+.printOnly{display:none}
+@media print{
+  body{background:white}
+  main.container{padding:0}
+  nav,.tabs,.notice,.bottom,
+  #editor,#archive,#settings,
+  .noPrint,footer{
+    display:none!important;
+  }
+  #estimate,#result{display:block!important}
+  .panel{border:0;padding:0}
+  .printOnly{display:block!important}
+  .item{break-inside:avoid}
+}
+</style>
+</head>
+
+<body>
+<main class="container">
+
+<nav class="container-fluid">
+<ul><li><strong>⚡ ЭлектроСмета</strong></li></ul>
+<ul>
+<li><a href="#editor" onclick="openPage('estimate')">Работы</a></li>
+<li><a href="#result" role="button" onclick="openPage('estimate')">Смета</a></li>
+</ul>
+</nav>
+
+<h1>ЭлектроСмета 2026</h1>
+<p class="muted">Нижний Тагил · Свердловская область</p>
+
+<div class="notice" id="offlineStatus">
+Цены за работу. Материалы и выезд отдельно.
+</div>
+
+<div class="tabs noPrint">
+<button onclick="openPage('estimate')">Смета</button>
+<button onclick="openPage('archive')">Архив</button>
+<button onclick="openPage('settings')">Настройки</button>
+</div>
+
+<section id="estimate">
+
+<div id="editor">
+<section class="panel">
+<h2>Объект</h2>
+<label>Адрес объекта
+<input id="address" placeholder="Адрес">
+</label>
+<label>Заказчик
+<input id="customer" placeholder="Имя или компания">
+</label>
+</section>
+
+<section class="panel">
+<h2>Добавить работу</h2>
+
+<label>Раздел работ
+<select id="group"></select>
+</label>
+
+<label>Вид работы
+<select id="work"></select>
+</label>
+
+<label id="wallLabel">Материал стены
+<select id="wall"></select>
+</label>
+
+<p id="note" class="muted"></p>
+
+<div class="fields">
+<label><span id="qtyLabel">Количество</span>
+<input id="qty" inputmode="decimal" placeholder="0">
+</label>
+
+<label>Цена за единицу, ₽
+<input id="rate" inputmode="decimal" placeholder="Цена">
+</label>
+</div>
+
+<label style="display:flex;align-items:center;gap:8px">
+<input id="remember" type="checkbox" style="width:20px;min-height:20px">
+Запомнить расценку
+</label>
+
+<div class="line">
+<span>Стоимость позиции</span>
+<strong id="preview" class="money big">0 ₽</strong>
+</div>
+
+<p id="error" class="warn"></p>
+
+<button id="add" onclick="addWork()">
+＋ Добавить в смету
+</button>
+</section>
+</div>
+
+<section class="panel" id="result">
+<h2>Готовая смета</h2>
+<p id="printInfo" class="printOnly"></p>
+
+<div id="lines"></div>
+
+<div class="line">
+<strong>Работы</strong>
+<strong id="workTotal">0 ₽</strong>
+</div>
+
+<div class="fields noPrint">
+<label>Материалы, ₽
+<input id="materials" inputmode="decimal" placeholder="0">
+</label>
+<label>Выезд, ₽
+<input id="travel" inputmode="decimal" placeholder="0">
+</label>
+<label>Прочие расходы, ₽
+<input id="extra" inputmode="decimal" placeholder="0">
+</label>
+<label>Скидка на работы, %
+<input id="discount" inputmode="decimal" placeholder="0">
+</label>
+</div>
+
+<div class="line">
+<span>Материалы</span>
+<strong id="matTotal">0 ₽</strong>
+</div>
+<div class="line">
+<span>Выезд</span>
+<strong id="travelTotal">0 ₽</strong>
+</div>
+<div class="line">
+<span>Прочие расходы</span>
+<strong id="extraTotal">0 ₽</strong>
+</div>
+<div class="line">
+<span>Скидка</span>
+<strong id="discountTotal">0 ₽</strong>
+</div>
+
+<hr>
+
+<div class="line big">
+<strong>Итого</strong>
+<strong class="money" id="total">0 ₽</strong>
+</div>
+
+<p id="validation" class="warn"></p>
+
+<div class="fields noPrint">
+<button id="saveBtn" onclick="saveEstimate()">В архив</button>
+<button id="shareBtn" onclick="shareEstimate()">Поделиться</button>
+<button id="copyBtn" class="secondary" onclick="copyEstimate()">Копировать</button>
+<button id="printBtn" class="secondary" onclick="printEstimate()">Печать / PDF</button>
+</div>
+
+<button class="secondary noPrint" onclick="newEstimate()">
+Новая смета
+</button>
+
+<textarea id="fallback" hidden readonly class="noPrint"></textarea>
+<p id="status" class="muted" role="status"></p>
+</section>
+</section>
+
+<section id="archive" hidden class="panel">
+<h2>Архив смет</h2>
+<input id="search" type="search" placeholder="Поиск по адресу или заказчику">
+<div id="archiveList"></div>
+</section>
+
+<section id="settings" hidden class="panel">
+<h2>Настройки</h2>
+
+<p class="muted">
+Архив и расценки хранятся на устройстве.
+Регулярно делайте резервную копию.
+</p>
+
+<button onclick="backup()">Скачать резервную копию</button>
+
+<label>Восстановить из копии
+<input id="restore" type="file" accept=".json,application/json">
+</label>
+
+<button class="secondary" onclick="resetRates()">
+Восстановить исходные цены
+</button>
+
+<hr>
+
+<h2>Своя работа</h2>
+<label>Название
+<input id="customName" placeholder="Наименование">
+</label>
+
+<div class="fields">
+<label>Единица
+<select id="customUnit">
+<option>шт.</option>
+<option>м</option>
+<option>м²</option>
+<option>ч</option>
+<option>компл.</option>
+</select>
+</label>
+
+<label>Цена, ₽
+<input id="customPrice" inputmode="decimal" placeholder="0">
+</label>
+</div>
+
+<button onclick="addCustom()">Добавить в справочник</button>
+<p id="settingsStatus" class="muted"></p>
+</section>
+
+<footer>ЭлектроСмета 2026 · Нижний Тагил</footer>
+
+<div class="bottom noPrint">
+<div class="bottominner">
+<div>
+<small id="count">Позиций: 0</small><br>
+<strong id="bottomTotal">0 ₽</strong>
+</div>
+<button onclick="openPage('estimate');document.getElementById('result').scrollIntoView({behavior:'smooth'})">
+К смете ↑
+</button>
+</div>
+</div>
+
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+
+const walls=["Дерево","Газобетон","Кирпич","Бетон"];
+const gkb=["Гипсокартон","Кирпич","Бетон"];
+
+function fixed(id,name,unit,price,mode=null){
+return {id,name,unit,options:[["",price]],mode};
+}
+
+function variants(id,name,unit,materials,prices,mode=null){
+return {
+id,name,unit,mode,
+options:materials.map((m,i)=>[m,prices[i]])
+};
+}
+
+const catalog=[
+
+["Распределительные коробки",[
+variants("b1","Накладная коробка без расключения","шт.",walls,[200,220,240,280]),
+fixed("b2","Встраиваемая коробка в готовое отверстие","шт.",200),
+variants("b3","Бурение нового отверстия под коробку","шт.",["Кирпич","Бетон"],[750,950]),
+fixed("b4","Расключение до 5 соединений","шт.",650),
+fixed("b5","Расключение более 5 соединений","шт.",null)
+]],
+
+["Накладные розетки и выключатели",[
+variants("n1","Накладная одинарная розетка","шт.",walls,[260,280,300,340]),
+variants("n2","Накладной выключатель 1 клавиша","шт.",walls,[230,250,270,310]),
+variants("n3","Накладной выключатель 2 клавиши","шт.",walls,[230,250,270,310])
+]],
+
+["Встраиваемые розетки и выключатели",[
+fixed("s1","Замена розетки на готовом месте","шт.",260),
+variants("s2","Установка новой розетки","шт.",gkb,[380,480,580]),
+fixed("s3","Одноклавишный выключатель","шт.",270)
+]],
+
+["Штробление стен",[
+variants("g1","Штробление стены","м",["Гипс","Кирпич","Бетон"],[250,370,370])
+]],
+
+["Кабель и кабель-канал",[
+fixed("c1","Кабель в готовую штробу","м",130),
+fixed("c2","Кабель в готовый кабель-канал","м",130),
+variants("c3","Монтаж кабель-канала","м",gkb,[90,130,150])
+]],
+
+["Гофра Ø16–20 мм",[
+variants("f1","Полный монтаж гофры","м",walls,[120,140,160,190],"full"),
+fixed("f2","Протяжка кабеля в гофру","м",20,"separate"),
+variants("f3","Крепление гофры с кабелем","м",walls,[100,120,140,170],"separate")
+]],
+
+["Электрощиты",[
+fixed("p1","Установка однополюсного автомата","шт.",280)
+]],
+
+["Дополнительные — ориентировочные цены",[
+fixed("a1","Штробление газобетона","м",250),
+fixed("a2","Заделка штробы","м",150),
+fixed("a3","Отверстие под подрозетник — гипс","шт.",250),
+fixed("a4","Отверстие под подрозетник — кирпич","шт.",400),
+fixed("a5","Отверстие под подрозетник — бетон","шт.",650),
+fixed("a6","Отверстие в гипсокартоне","шт.",200),
+fixed("a7","Монтаж подрозетника отдельно","шт.",180),
+fixed("a8","Монтаж механизма розетки отдельно","шт.",400),
+fixed("a11","Открытая прокладка кабеля","м",120),
+fixed("a12","Прокладка интернет-кабеля","м",100),
+fixed("a13","Монтаж накладного электрощита","шт.",1500),
+fixed("a14","Монтаж встраиваемого щита","шт.",2200),
+fixed("a15","Двухполюсный автомат","шт.",500),
+fixed("a16","УЗО / дифавтомат","шт.",650),
+fixed("a17","Реле напряжения","шт.",700),
+fixed("a18","Точечный светильник","шт.",450),
+fixed("a19","Накладной светильник","шт.",600),
+fixed("a20","Монтаж люстры","шт.",1200),
+fixed("a21","Светодиодная лента","м",250),
+fixed("a22","Подключение варочной панели","шт.",1200),
+fixed("a23","Подключение духового шкафа","шт.",800),
+fixed("a24","Демонтаж розетки","шт.",150),
+fixed("a25","Демонтаж кабеля","м",60),
+fixed("a26","Диагностика","ч",1000),
+fixed("a27","Проверка линии","шт.",400)
+]]
+];
+
+function blank(){
+return {
+id:null,address:"",customer:"",
+materials:"",travel:"",extra:"",
+discount:"",lines:[]
+};
+}
+
+let data={
+draft:blank(),
+archive:[],
+prices:{},
+custom:[]
+};
+
+const storageKey="electrosmeta2026-tagil";
+
+try{
+const old=localStorage.getItem(storageKey);
+if(old)data=JSON.parse(old);
+}catch(e){
+$("status").textContent="Не удалось прочитать сохранённые данные.";
+}
+
+function save(){
+try{
+localStorage.setItem(storageKey,JSON.stringify(data));
+return true;
+}catch(e){
+$("status").textContent="Ошибка сохранения. Сделайте резервную копию.";
+return false;
+}
+}
+
+function uid(){
+return Date.now().toString(36)+Math.random().toString(36).slice(2);
+}
+
+function parse(v){
+let text=String(v??"").replace(/\s/g,"").replace(",",".");
+if(!/^\d+(\.\d+)?$/.test(text))return null;
+let x=Number(text);
+return Number.isFinite(x)&&x<=1e9?x:null;
+}
+
+function num(v){return parse(v)??0}
+
+function round(v){
+return Math.round((v+Number.EPSILON)*100)/100;
+}
+
+function money(v){
+return round(v).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
+}
+
+function lineTotal(r){
+return round(num(r.qty)*num(r.rate));
+}
+
+function validLine(r){
+return r.name.trim()&&
+num(r.qty)>0&&
+parse(r.rate)!==null&&
+(r.unit!=="шт."||Number.isInteger(num(r.qty)));
+}
+
+function calc(d){
+let work=round(d.lines.reduce((s,r)=>s+lineTotal(r),0));
+let discount=round(work*Math.min(100,num(d.discount))/100);
+return {
+work,discount,
+total:round(work-discount+num(d.materials)+num(d.travel)+num(d.extra)),
+valid:d.lines.length>0&&
+d.lines.every(validLine)&&
+[d.materials,d.travel,d.extra,d.discount].every(v=>v===""||parse(v)!==null)&&
+num(d.discount)<=100
+};
+}
+
+function el(tag,text,cls){
+let e=document.createElement(tag);
+if(text!==undefined)e.textContent=text;
+if(cls)e.className=cls;
+return e;
+}
+
+function groups(){
+return [...catalog,["Мои работы",data.custom.map(r=>fixed(r.id,r.name,r.unit,r.price))]];
+}
+
+function options(id,items){
+$(id).replaceChildren();
+items.forEach(([value,text])=>{
+let o=el("option",text);
+o.value=value;
+$(id).append(o);
+});
+}
+
+function selected(){
+return groups()[Number($("group").value)]?.[1].find(r=>r.id===$("work").value);
+}
+
+function initCatalog(index=0){
+options("group",groups().map((g,i)=>[i,g[0]]));
+$("group").value=String(index);
+chooseGroup();
+}
+
+function chooseGroup(){
+let g=groups()[Number($("group").value)];
+options("work",g[1].map(r=>[r.id,r.name]));
+chooseWork();
+}
+
+function chooseWork(){
+let r=selected();
+$("wallLabel").hidden=!r||r.options.length<2;
+options("wall",r?r.options.map((o,i)=>[i,o[0]||"Без выбора"]):[]);
+chooseWall();
+}
+
+function chooseWall(){
+let r=selected();
+if(!r){
+$("add").disabled=true;
+return;
+}
+
+let i=Number($("wall").value);
+let o=r.options[i];
+let key=r.id+"-"+i;
+
+$("rate").value=data.prices[key]??o[1]??"";
+$("remember").checked=o[1]!==null;
+$("qtyLabel").textContent=r.unit==="м"?"Метраж, м":"Количество, "+r.unit;
+
+let g=Number($("group").value);
+
+$("note").textContent=
+g===0?
+"Крепёжные отверстия накладной коробки включены. Расключение один раз на коробку. Бурение только для нового отверстия.":
+g===1?
+"Крепление корпуса, отверстия и подключение включены. Кабель отдельно.":
+r.id==="s2"?
+"Отверстие, подрозетник и механизм включены. Кабельная трасса отдельно.":
+g===5?
+"Полный монтаж уже включает протяжку кабеля. Для разных операций используйте раздельный режим.":
+g===7?
+"Ориентировочная цена. Проверьте перед расчётом.":
+"";
+
+preview();
+}
+
+function currentLine(){
+let r=selected();
+if(!r)return null;
+let i=Number($("wall").value);
+return {
+id:uid(),
+key:r.id+"-"+i,
+name:[r.name,r.options[i][0]].filter(Boolean).join(" — "),
+unit:r.unit,
+qty:$("qty").value,
+rate:$("rate").value,
+mode:r.mode
+};
+}
+
+function conflict(r){
+return r?.mode&&data.draft.lines.some(x=>x.mode&&x.mode!==r.mode);
+}
+
+function preview(){
+let r=currentLine();
+let ok=r&&validLine(r);
+let bad=conflict(r);
+$("preview").textContent=ok?money(lineTotal(r)):"—";
+$("add").disabled=!ok||!!bad;
+$("error").textContent=bad?
+"Нельзя одновременно выбирать полный и раздельный монтаж гофры. Используйте раздельный режим для разных участков.":"";
+}
+
+function addWork(){
+let r=currentLine();
+if(!r||!validLine(r)||conflict(r))return;
+data.draft.lines.push(r);
+if($("remember").checked)data.prices[r.key]=r.rate;
+$("qty").value="";
+drawLines();
+render();
+$("status").textContent="Работа добавлена.";
+}
+
+function field(label,value,change){
+let l=el("label",label);
+let i=el("input");
+i.inputMode="decimal";
+i.value=value;
+i.oninput=()=>change(i.value);
+l.append(i);
+return l;
+}
+
+function drawLines(){
+let root=$("lines");
+root.replaceChildren();
+
+if(!data.draft.lines.length){
+root.append(el("p","Добавьте работы из справочника.","muted"));
+}
+
+for(let r of data.draft.lines){
+let card=el("div",undefined,"item");
+let head=el("div",undefined,"line");
+let sum=el("strong",money(lineTotal(r)),"money");
+head.append(el("strong",r.name),sum);
+
+let fields=el("div",undefined,"fields noPrint");
+let printable=el("p",r.qty+" "+r.unit+" × "+money(num(r.rate)),"printOnly");
+
+function refresh(){
+sum.textContent=validLine(r)?money(lineTotal(r)):"—";
+printable.textContent=r.qty+" "+r.unit+" × "+money(num(r.rate));
+render();
+}
+
+fields.append(
+field("Количество, "+r.unit,r.qty,v=>{r.qty=v;refresh()}),
+field("Цена, ₽",r.rate,v=>{r.rate=v;refresh()})
+);
+
+let remove=el("button","Удалить позицию","secondary noPrint");
+remove.onclick=()=>{
+data.draft.lines=data.draft.lines.filter(x=>x.id!==r.id);
+drawLines();
+render();
+};
+
+card.append(head,fields,printable,remove);
+root.append(card);
+}
+}
+
+const fields=["address","customer","materials","travel","extra","discount"];
+
+function loadDraft(){
+fields.forEach(id=>$(id).value=data.draft[id]??"");
+drawLines();
+render();
+}
+
+function render(){
+let d=data.draft;
+let t=calc(d);
+
+$("workTotal").textContent=money(t.work);
+$("matTotal").textContent=money(num(d.materials));
+$("travelTotal").textContent=money(num(d.travel));
+$("extraTotal").textContent=money(num(d.extra));
+$("discountTotal").textContent=money(t.discount);
+$("total").textContent=money(t.total);
+$("bottomTotal").textContent=money(t.total);
+$("count").textContent="Позиций: "+d.lines.length;
+
+$("printInfo").textContent=[
+"Нижний Тагил",d.address,d.customer,
+new Date().toLocaleDateString("ru-RU")
+].filter(Boolean).join(" · ");
+
+$("validation").textContent=
+d.lines.length&&!t.valid?
+"Итог предварительный. Проверьте количество, цены и расходы.":"";
+
+["saveBtn","shareBtn","copyBtn","printBtn"].forEach(id=>$(id).disabled=!t.valid);
+
+save();
+preview();
+}
+
+function report(d){
+let t=calc(d);
+return [
+"СМЕТА НА ЭЛЕКТРОМОНТАЖ",
+"Нижний Тагил",
+"Дата: "+new Date().toLocaleDateString("ru-RU"),
+"Объект: "+d.address,
+"Заказчик: "+d.customer,
+"",
+...d.lines.map((r,i)=>
+(i+1)+". "+r.name+" — "+r.qty+" "+r.unit+
+" × "+money(num(r.rate))+" = "+money(lineTotal(r))),
+"",
+"Работы: "+money(t.work),
+"Материалы: "+money(num(d.materials)),
+"Выезд: "+money(num(d.travel)),
+"Прочее: "+money(num(d.extra)),
+"Скидка: "+money(t.discount),
+"ИТОГО: "+money(t.total)
+].join("\n");
+}
+
+function saveEstimate(){
+if(!calc(data.draft).valid)return;
+let id=data.draft.id||uid();
+data.draft.id=id;
+let item={
+id,date:new Date().toISOString(),
+estimate:JSON.parse(JSON.stringify(data.draft))
+};
+data.archive=[item,...data.archive.filter(x=>x.id!==id)];
+$("status").textContent=save()?"Смета сохранена в архив.":"Ошибка сохранения.";
+}
+
+function openPage(id){
+["estimate","archive","settings"].forEach(p=>$(p).hidden=p!==id);
+if(id==="archive")drawArchive();
+}
+
+function drawArchive(){
+let root=$("archiveList");
+root.replaceChildren();
+let q=$("search").value.toLowerCase();
+let list=data.archive.filter(a=>
+(a.estimate.address+" "+a.estimate.customer).toLowerCase().includes(q));
+
+if(!list.length)root.append(el("p","Смет пока нет.","muted"));
+
+for(let a of list){
+let card=el("div",undefined,"item");
+card.append(
+el("strong",a.estimate.address||"Без адреса"),
+el("p",a.estimate.customer+" · "+new Date(a.date).toLocaleDateString("ru-RU"),"muted"),
+el("p",money(calc(a.estimate).total),"money big")
+);
+
+let buttons=el("div",undefined,"fields");
+let open=el("button","Открыть");
+open.onclick=()=>{
+if(!confirm("Заменить текущий черновик?"))return;
+data.draft=JSON.parse(JSON.stringify(a.estimate));
+loadDraft();
+openPage("estimate");
+};
+
+let del=el("button","Удалить","secondary");
+del.onclick=()=>{
+if(!confirm("Удалить смету из архива?"))return;
+data.archive=data.archive.filter(x=>x.id!==a.id);
+if(data.draft.id===a.id)data.draft.id=null;
+save();
+drawArchive();
+};
+buttons.append(open,del);
+card.append(buttons);
+root.append(card);
+}
+}
+
+function newEstimate(){
+if(!confirm("Начать новую смету? Несохранённый черновик будет очищен."))return;
+data.draft=blank();
+loadDraft();
+$("status").textContent="";
+$("fallback").hidden=true;
+window.scrollTo(0,0);
+}
+
+async function copyEstimate(){
+if(!calc(data.draft).valid)return;
+let text=report(data.draft);
+try{
+await navigator.clipboard.writeText(text);
+$("status").textContent="Смета скопирована.";
+}catch(e){
+$("fallback").hidden=false;
+$("fallback").value=text;
+$("fallback").focus();
+$("fallback").select();
+}
+}
+
+async function shareEstimate(){
+if(!calc(data.draft).valid)return;
+if(navigator.share){
+try{
+await navigator.share({
+title:"Смета — Нижний Тагил",
+text:report(data.draft)
+});
+return;
+}catch(e){
+if(e.name==="AbortError")return;
+}
+}
+copyEstimate();
+}
+
+function printEstimate(){
+if(calc(data.draft).valid)window.print();
+}
+
+function addCustom(){
+let name=$("customName").value.trim();
+let price=parse($("customPrice").value);
+if(!name||price===null){
+alert("Введите название и корректную цену.");
+return;
+}
+let r={id:"u"+uid(),name,unit:$("customUnit").value,price};
+data.custom.push(r);
+save();
+$("customName").value="";
+$("customPrice").value="";
+initCatalog(groups().length-1);
+$("work").value=r.id;
+chooseWork();
+openPage("estimate");
+}
+
+function resetRates(){
+if(!confirm("Вернуть исходные цены? Старые сметы не изменятся."))return;
+data.prices={};
+save();
+chooseWall();
+$("settingsStatus").textContent="Исходные цены восстановлены.";
+}
+
+async function backup(){
+let text=JSON.stringify({version:1,data},null,2);
+let name="ElectroSmeta-"+new Date().toISOString().slice(0,10)+".json";
+let file=new File([text],name,{type:"application/json"});
+
+if(navigator.canShare?.({files:[file]})){
+try{
+await navigator.share({files:[file],title:"Резервная копия"});
+return;
+}catch(e){
+if(e.name==="AbortError")return;
+}
+}
+
+let url=URL.createObjectURL(file);
+let a=el("a");
+a.href=url;
+a.download=name;
+document.body.append(a);
+a.click();
+a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),30000);
+}
+
+function validDraft(d){
+return d&&
+fields.every(k=>typeof d[k]==="string")&&
+Array.isArray(d.lines)&&
+d.lines.every(r=>r&&["id","name","unit","qty","rate"].every(k=>typeof r[k]==="string")&&
+[null,undefined,"full","separate"].includes(r.mode));
+}
+
+$("restore").onchange=async e=>{
+let file=e.target.files[0];
+if(!file)return;
+try{
+let b=JSON.parse(await file.text());
+let d=b.data;
+if(b.version!==1||
+!validDraft(d?.draft)||
+!Array.isArray(d.archive)||
+!d.archive.every(a=>typeof a.id==="string"&&typeof a.date==="string"&&validDraft(a.estimate))||
+!Array.isArray(d.custom)||
+!d.custom.every(r=>typeof r.id==="string"&&typeof r.name==="string"&&typeof r.unit==="string"&&parse(r.price)!==null)||
+!d.prices||typeof d.prices!=="object"||
+!Object.values(d.prices).every(v=>parse(v)!==null)){
+throw new Error("format");
+}
+if(confirm("Заменить архив, сметы и расценки данными из копии?")){
+data=d;
+initCatalog();
+loadDraft();
+$("settingsStatus").textContent="Резервная копия восстановлена.";
+}
+}catch(e){
+$("settingsStatus").textContent="Не удалось открыть резервную копию.";
+}
+e.target.value="";
+};
+
+$("group").onchange=chooseGroup;
+$("work").onchange=chooseWork;
+$("wall").onchange=chooseWall;
+$("qty").oninput=preview;
+$("rate").oninput=preview;
+$("search").oninput=drawArchive;
+
+fields.forEach(id=>{
+$(id).oninput=()=>{
+data.draft[id]=$(id).value;
+render();
+};
+});
+
+initCatalog();
+loadDraft();
+
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("./sw.js")
+.then(()=>navigator.serviceWorker.ready)
+.then(()=>{
+$("offlineStatus").textContent="Автономный режим подготовлен. Материалы и выезд отдельно.";
+})
+.catch(()=>{
+$("offlineStatus").textContent="Калькулятор доступен. Автономный режим ещё не настроен.";
+});
+}
+</script>
+
+</body>
+</html>
