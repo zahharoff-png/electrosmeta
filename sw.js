@@ -1,5 +1,5 @@
 
-const CACHE = "electrosmeta-v2";
+const CACHE = "electrosmeta-v3";
 
 const ROOT = self.registration.scope;
 const INDEX = new URL("index.html", ROOT).href;
