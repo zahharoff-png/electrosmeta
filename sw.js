@@ -1,31 +1,36 @@
 
-const CACHE = "electrosmeta-v1";
+const CACHE = "electrosmeta-v2";
 
-const FILES = [
-  "./",
-  "./index.html",
-  "./manifest.json"
-];
+const ROOT = self.registration.scope;
+const INDEX = new URL("index.html", ROOT).href;
+const MANIFEST = new URL("manifest.json", ROOT).href;
 
 self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE)
-      .then(cache => cache.addAll(FILES))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+
+    await cache.addAll([
+      new Request(INDEX, {cache: "reload"}),
+      new Request(MANIFEST, {cache: "reload"})
+    ]);
+
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(key =>
-          key.startsWith("electrosmeta-") &&
-          key !== CACHE
-        ).map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+
+    await Promise.all(
+      keys.filter(key =>
+        key.startsWith("electrosmeta-") &&
+        key !== CACHE
+      ).map(key => caches.delete(key))
+    );
+
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener("fetch", event => {
@@ -33,31 +38,52 @@ self.addEventListener("fetch", event => {
 
   if (request.method !== "GET") return;
 
-  if (new URL(request.url).origin !==
-      self.location.origin) return;
+  if (
+    request.mode === "navigate" &&
+    request.url.startsWith(ROOT)
+  ) {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      const saved = await cache.match(INDEX);
 
-  event.respondWith(
-    fetch(request)
-      .then(response => {
-        if (response.ok) {
-          const copy = response.clone();
-          caches.open(CACHE).then(cache =>
-            cache.put(request, copy)
-          );
-        }
-        return response;
-      })
-      .catch(async () => {
-        const cached = await caches.match(request);
-        if (cached) return cached;
+      if (saved) return saved;
 
-        if (request.mode === "navigate") {
-          return caches.match("./index.html");
-        }
+      const response = await fetch(INDEX);
 
-        return new Response("Нет подключения", {
-          status: 503
-        });
-      })
-  );
+      if (response.ok) {
+        await cache.put(INDEX, response.clone());
+      }
+
+      return response;
+    })());
+
+    return;
+  }
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    const saved = await cache.match(request);
+
+    if (saved) return saved;
+
+    try {
+      const response = await fetch(request);
+
+      if (
+        response.ok ||
+        response.type === "opaque"
+      ) {
+        await cache.put(
+          request,
+          response.clone()
+        );
+      }
+
+      return response;
+    } catch {
+      return new Response("", {
+        status: 503
+      });
+    }
+  })());
 });
